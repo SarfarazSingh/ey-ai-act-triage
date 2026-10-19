@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>EY AI Act Triage</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: firm header band → client portfolio heat-strip → questionnaire (left) beside a sticky live verdict (right) → regulatory timeline → how it plugs into the practice */
+:root{
+  --bg:#F4F3EF; --surface:#FFFFFF; --fg:#1A1A1C; --muted:#5F5D63; --line:#E0DED8;
+  --accent:#7F5600; --accent-ink:#FFFFFF; --accent-soft:#F5EBD2;
+  --t-prohib:#B42318; --t-high:#C2410C; --t-exempt:#8A6D1E; --t-limited:#1D5FA8; --t-minimal:#56636E; --t-out:#8B8F94;
+  --t-prohib-soft:#FDE8E6; --t-high-soft:#FDEBDD; --t-exempt-soft:#F6EED6; --t-limited-soft:#E2ECF8; --t-minimal-soft:#E7EBEE; --t-out-soft:#EEEFF0;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121212; --surface:#1B1B1D; --fg:#EDEBE6; --muted:#9C9AA1; --line:#2E2E32;
+  --accent:#F0BE2E; --accent-ink:#1A1400; --accent-soft:#2E2610;
+  --t-prohib:#F97066; --t-high:#FB923C; --t-exempt:#E0BE5A; --t-limited:#6AA8F0; --t-minimal:#A3B0BA; --t-out:#9AA0A6;
+  --t-prohib-soft:#3A1715; --t-high-soft:#3A2112; --t-exempt-soft:#332911; --t-limited-soft:#14253A; --t-minimal-soft:#22282D; --t-out-soft:#24272A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --surface:#1B1B1D; --fg:#EDEBE6; --muted:#9C9AA1; --line:#2E2E32;
+  --accent:#F0BE2E; --accent-ink:#1A1400; --accent-soft:#2E2610;
+  --t-prohib:#F97066; --t-high:#FB923C; --t-exempt:#E0BE5A; --t-limited:#6AA8F0; --t-minimal:#A3B0BA; --t-out:#9AA0A6;
+  --t-prohib-soft:#3A1715; --t-high-soft:#3A2112; --t-exempt-soft:#332911; --t-limited-soft:#14253A; --t-minimal-soft:#22282D; --t-out-soft:#24272A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--mono)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header.top{border-bottom:1px solid var(--line);background:var(--surface)}
+header.top .wrap{padding-block:28px 26px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+.prep{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.firmtag{font-family:var(--display);font-weight:800;font-stretch:110%;font-size:13px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 9px;border-radius:3px}
+h1{font-size:clamp(34px,5.4vw,58px);font-weight:800;font-stretch:78%;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{max-width:62ch;color:var(--muted);margin:12px 0 0;font-size:16px}
+.author{text-align:right;font-size:13px;color:var(--muted);line-height:1.5}
+.author b{display:block;color:var(--fg);font-family:var(--display);font-stretch:95%;font-size:16px}
+@media (max-width:760px){header.top .wrap{grid-template-columns:1fr}.author{text-align:left}}
+
+section{padding-block:30px}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sechead h2{font-size:24px;font-weight:700;font-stretch:88%}
+.sechead p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:70ch}
+
+/* portfolio */
+.dist{display:flex;height:12px;border-radius:2px;overflow:hidden;margin-bottom:8px;background:var(--line)}
+.dist span{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tc);padding:12px 14px;border-radius:4px;min-width:0;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-1px);border-color:var(--tc)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
+.card .nm{font-weight:600;font-size:14.5px;line-height:1.3}
+.card .ds{font-size:12.5px;color:var(--muted);line-height:1.4}
+.card .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--ts);color:var(--tc);white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--tc)}
+.ref{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.newbtn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--line);border-radius:4px;padding:12px;color:var(--muted);font-weight:600;font-size:14px;min-height:96px}
+.newbtn:hover{border-color:var(--accent);color:var(--accent)}
+.newbtn:focus-visible{outline:2px solid var(--accent)}
+
+/* main grid */
+.main{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+form{display:flex;flex-direction:column;gap:12px}
+fieldset{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:16px 18px 18px;margin:0;min-width:0}
+legend{display:contents}
+.qh{display:flex;gap:12px;align-items:baseline;margin-bottom:4px}
+.qn{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500}
+.qt{font-family:var(--display);font-stretch:92%;font-weight:700;font-size:17px}
+.qs{color:var(--muted);font-size:13px;margin:0 0 12px 30px}
+.opts{display:flex;flex-wrap:wrap;gap:6px;margin-left:30px}
+.opts.stack{flex-direction:column}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;border:1px solid var(--line);border-radius:4px;padding:7px 11px;font-size:13.5px;line-height:1.35;background:var(--bg);transition:background .12s,border-color .12s}
+.opt label .a{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;padding-left:10px;white-space:nowrap}
+.opt input:checked+label{border-color:var(--accent);background:var(--accent-soft)}
+.opt input:focus-visible+label{outline:2px solid var(--accent);outline-offset:1px}
+.opt input[type=checkbox]+label::before{content:"";flex:none;width:13px;height:13px;margin-top:2px;border:1.5px solid var(--muted);border-radius:2px}
+.opt input[type=checkbox]:checked+label::before{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--surface)}
+.namein{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.cond[hidden]{display:none!important}
+@media (max-width:520px){.qs,.opts{margin-left:0}}
+
+/* verdict */
+.verdict{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;flex-direction:column;gap:12px}
+@media (max-width:900px){.verdict{position:static}}
+.vbox{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px}
+.vtop{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:16px;align-items:center}
+@media (max-width:420px){.vtop{grid-template-columns:1fr}}
+.vname{font-size:13px;color:var(--muted);margin-bottom:4px;overflow-wrap:anywhere}
+.vtier{font-family:var(--display);font-weight:800;font-stretch:80%;font-size:34px;line-height:1;color:var(--tc)}
+.vwhy{font-size:13.5px;margin:10px 0 0;color:var(--fg)}
+.vwhy li{margin-bottom:3px}
+.vwhy ul{margin:0;padding-left:18px}
+.pyr{display:flex;flex-direction:column;align-items:center;gap:3px}
+.pyr div{height:22px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--line);color:var(--muted);transition:all .25s;clip-path:polygon(6% 0,94% 0,100% 100%,0 100%)}
+.pyr div.on{background:var(--tc);color:var(--surface);font-weight:500}
+.pyr div:nth-child(1){width:40%}.pyr div:nth-child(2){width:60%}.pyr div:nth-child(3){width:80%}.pyr div:nth-child(4){width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.stat{background:var(--surface);padding:12px 12px}
+.stat b{display:block;font-family:var(--display);font-weight:800;font-stretch:85%;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted);line-height:1.3;display:block}
+.flags{display:flex;flex-wrap:wrap;gap:6px}
+.flag{font-size:12.5px;border:1px solid var(--line);background:var(--bg);border-radius:3px;padding:4px 8px}
+.flag b{color:var(--accent)}
+.obl h3{font-size:16px;font-stretch:92%;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.obl h3 span{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ol li{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.ol li:first-child{border-top:0}
+.ol .art{font-family:var(--mono);font-size:11.5px;color:var(--accent);padding-top:2px}
+.ol .t{font-size:13.5px;font-weight:600;line-height:1.35}
+.ol .w{font-size:12.5px;color:var(--muted);margin-top:2px}
+.ol .w b{font-weight:600;color:var(--fg)}
+.who{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:0 4px;margin-left:6px;vertical-align:1px;font-weight:400}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;padding:9px 14px;border-radius:4px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.toast{font-size:13px;color:var(--accent);align-self:center}
+.empty{color:var(--muted);font-size:13.5px}
+
+/* timeline */
+.tlbox{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow-x:auto}
+.tl{position:relative;min-width:860px;height:230px;margin:0 28px}
+.tl .axis{position:absolute;left:0;right:0;top:115px;height:2px;background:var(--line)}
+.tl .yr{position:absolute;top:122px;font-family:var(--mono);font-size:11px;color:var(--muted);transform:translateX(-50%)}
+.tl .yr::before{content:"";position:absolute;left:50%;top:-10px;width:1px;height:8px;background:var(--muted)}
+.ms{position:absolute;width:150px;transform:translateX(-50%);font-size:12px;line-height:1.3;color:var(--muted);text-align:center;transition:color .2s}
+.ms .d{font-family:var(--mono);font-size:11px;display:block;margin-bottom:2px}
+.ms.up{bottom:128px}.ms.dn{top:144px}
+.ms::after{content:"";position:absolute;left:50%;width:1px;background:var(--line)}
+.ms.up::after{top:100%;height:12px}.ms.dn::after{bottom:100%;height:22px}
+.dot{position:absolute;top:110px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--muted);transform:translateX(-50%)}
+.ms.hit{color:var(--fg);font-weight:600}
+.dot.hit{background:var(--tc);border-color:var(--tc)}
+.ms.past .d::after{content:" · in force";color:var(--muted);font-weight:400}
+.today{position:absolute;top:70px;height:92px;width:0;border-left:2px dashed var(--accent)}
+.today span{position:absolute;top:-18px;left:-28px;font-family:var(--mono);font-size:10.5px;color:var(--accent);white-space:nowrap;background:var(--surface);padding:0 3px}
+
+/* fit */
+.fit{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.fit{grid-template-columns:1fr}}
+.fit div{border-top:2px solid var(--accent);padding-top:12px}
+.fit h3{font-size:17px;font-stretch:92%;font-weight:700;margin-bottom:6px}
+.fit p{margin:0;font-size:14px;color:var(--muted)}
+.ask{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;background:var(--accent);color:var(--accent-ink);border-radius:4px;padding:22px 24px}
+.ask h3{font-size:24px;font-stretch:85%;font-weight:800}
+.ask p{margin:6px 0 0;font-size:14.5px;max-width:62ch;opacity:.92}
+.contact{font-family:var(--mono);font-size:13px;text-align:right;line-height:1.7;user-select:all}
+@media (max-width:720px){.ask{grid-template-columns:1fr}.contact{text-align:left}}
+footer{border-top:1px solid var(--line);padding-block:20px 34px;font-size:12px;color:var(--muted)}
+footer p{margin:0 0 4px;max-width:110ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <div class="prep"><span class="firmtag">Built for EY</span><span class="eyebrow">AI assurance & governance · Spain</span></div>
+      <h1>EU AI Act <em>triage</em>, in five minutes per system</h1>
+      <p class="lede">A triage engine built the way an assurance team thinks: every AI Act obligation comes with the evidence a reviewer would ask to see. Shown on a sample European insurer.</p>
+    </div>
+    <div class="author"><b>Sarfaraz Singh Wahad</b>AIGP · PMP · IE International MBA '26<br>Ex-nuclear submarine safety officer · ex-PwC GenAI</div>
+  </div>
+</header>
+
+<main>
+<section class="wrap" id="portfolio">
+  <div class="sechead">
+    <div><h2 id="ptitle"></h2><p id="pdesc"></p></div>
+    <span class="eyebrow">Illustrative sample · click a system to open it</span>
+  </div>
+  <div class="dist" id="dist" aria-hidden="true"></div>
+  <div class="legend" id="legend"></div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section class="wrap" style="padding-top:6px">
+  <div class="main">
+    <form id="f" autocomplete="off">
+      <fieldset>
+        <legend><div class="qh"><span class="qn">00</span><span class="qt">System under review</span></div></legend>
+        <div style="margin-left:30px"><input class="namein" id="sysname" type="text" placeholder="e.g. Mortgage pre-approval scoring model"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="qh"><span class="qn">01</span><span class="qt">The client's role for this system</span></div></legend>
+        <p class="qs">Obligations attach to roles, not to companies. Building in-house and using it makes the client both.</p>
+        <div class="opts" data-name="role" data-type="radio">
+          <div class="opt"><input type="radio" name="role" id="r-prov" value="provider"><label for="r-prov">Provider (builds or brands it)<span class="a">Art. 3(3)</span></label></div>
+          <div class="opt"><input type="radio" name="role" id="r-dep" value="deployer"><label for="r-dep">Deployer (uses it)<span class="a">Art. 3(4)</span></label></div>
+          <div class="opt"><input type="radio" name="role" id="r-both" value="both"><label for="r-both">Both</label></div>
+          <div class="opt"><input type="radio" name="role" id="r-imp" value="importer"><label for="r-imp">Importer / distributor<span class="a">Arts. 23–24</span></label></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><div class="qh"><span class="qn">02</span><span class="qt">Scope check</span></div></legend>
+        <p class="qs">A machine-based system that infers from inputs how to generate predictions, content, recommendations or decisions, with some autonomy.</p>
+        <div class="opts" data-name="isAI">
+          <div class="opt"><input type="radio" name="isAI" id="ai-y" value="yes"><label for="ai-y">Meets the AI-system definition<span class="a">Art. 3(1)</span></label></div>
+          <div class="opt"><input type="radio" name="isAI" id="ai-u" value="unsure"><label for="ai-u">Unsure (rules-based, borderline)</label></div>
+          <div class="opt"><input type="radio" name="isAI" id="ai-n" value="no"><label for="ai-n">No, deterministic software</label></div>
+        </div>
+        <div class="opts" style="margin-top:10px">
+          <div class="opt"><input type="checkbox" name="excluded" id="ex-mil" value="military"><label for="ex-mil">Used exclusively for military, defence or national security<span class="a">Art. 2(3)</span></label></div>
+          <div class="opt"><input type="checkbox" name="excluded" id="ex-res" value="research"><label for="ex-res">Sole purpose is scientific R&amp;D, not placed on the market<span class="a">Art. 2(6)</span></label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="cond" id="fs-prohib">
+        <legend><div class="qh"><span class="qn">03</span><span class="qt">Prohibited practices</span></div></legend>
+        <p class="qs">Tick anything the system does. One tick ends the triage: the use must stop.</p>
+        <div class="opts stack">
+          <div class="opt"><input type="checkbox" name="prohib" id="p-a" value="a"><label for="p-a">Manipulative or subliminal techniques that distort behaviour and cause significant harm<span class="a">5(1)(a)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-b" value="b"><label for="p-b">Exploits vulnerabilities of age, disability or socio-economic situation<span class="a">5(1)(b)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-c" value="c"><label for="p-c">Social scoring that leads to unjustified detrimental treatment<span class="a">5(1)(c)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-d" value="d"><label for="p-d">Predicts criminal offending solely from profiling or personality traits<span class="a">5(1)(d)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-e" value="e"><label for="p-e">Untargeted scraping of facial images to build recognition databases<span class="a">5(1)(e)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-f" value="f"><label for="p-f">Emotion recognition of employees or students (non-medical, non-safety)<span class="a">5(1)(f)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-g" value="g"><label for="p-g">Biometric categorisation inferring race, religion, politics, union membership or sexual orientation<span class="a">5(1)(g)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-h" value="h"><label for="p-h">Real-time remote biometric ID in public spaces for law enforcement<span class="a">5(1)(h)</span></label></div>
+          <div class="opt"><input type="checkbox" name="prohib" id="p-i" value="i"><label for="p-i">Generates non-consensual intimate imagery or CSAM, or lacks safeguards against it<span class="a">Omnibus</span></label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="cond" id="fs-high">
+        <legend><div class="qh"><span class="qn">04</span><span class="qt">High-risk classification</span></div></legend>
+        <p class="qs">Is it a safety component of a product already under EU harmonisation law (machinery excluded post-Omnibus, medical devices, toys, lifts, vehicles)?</p>
+        <div class="opts" data-name="annexI">
+          <div class="opt"><input type="radio" name="annexI" id="a1-n" value="no"><label for="a1-n">No</label></div>
+          <div class="opt"><input type="radio" name="annexI" id="a1-y" value="yes"><label for="a1-y">Yes, regulated product<span class="a">Art. 6(1) · Annex I</span></label></div>
+        </div>
+        <p class="qs" style="margin-top:14px">Which Annex III use case does it fall into, if any?</p>
+        <div class="opts stack">
+          <div class="opt"><input type="radio" name="annexIII" id="a3-none" value="none"><label for="a3-none">None of these</label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-bio" value="bio"><label for="a3-bio">Biometrics: remote ID, categorisation, emotion recognition<span class="a">III.1</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-inf" value="infra"><label for="a3-inf">Critical infrastructure safety: energy, water, transport, digital<span class="a">III.2</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-edu" value="edu"><label for="a3-edu">Education: admission, grading, proctoring<span class="a">III.3</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-emp" value="emp"><label for="a3-emp">Employment: hiring, CV screening, promotion, monitoring<span class="a">III.4</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-ess" value="ess"><label for="a3-ess">Essential services: credit scoring, life &amp; health insurance pricing, public benefits<span class="a">III.5</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-law" value="law"><label for="a3-law">Law enforcement, migration, border control<span class="a">III.6–7</span></label></div>
+          <div class="opt"><input type="radio" name="annexIII" id="a3-jus" value="jus"><label for="a3-jus">Justice, elections and democratic processes<span class="a">III.8</span></label></div>
+        </div>
+        <div class="cond" id="derog" hidden>
+          <p class="qs" style="margin-top:14px">Derogation test. Does the system only do one of these, without materially shaping the outcome?</p>
+          <div class="opts stack">
+            <div class="opt"><input type="checkbox" name="derog" id="d-1" value="narrow"><label for="d-1">Performs a narrow procedural task (extract, classify, route documents)<span class="a">6(3)(a)</span></label></div>
+            <div class="opt"><input type="checkbox" name="derog" id="d-2" value="improve"><label for="d-2">Improves the result of a completed human activity<span class="a">6(3)(b)</span></label></div>
+            <div class="opt"><input type="checkbox" name="derog" id="d-3" value="pattern"><label for="d-3">Flags deviations from past decision patterns, with human review<span class="a">6(3)(c)</span></label></div>
+            <div class="opt"><input type="checkbox" name="derog" id="d-4" value="prep"><label for="d-4">Preparatory task to an Annex III assessment<span class="a">6(3)(d)</span></label></div>
+          </div>
+          <div class="opts" data-name="profiling" style="margin-top:10px">
+            <div class="opt"><input type="radio" name="profiling" id="pr-n" value="no"><label for="pr-n">No profiling of individuals</label></div>
+            <div class="opt"><input type="radio" name="profiling" id="pr-y" value="yes"><label for="pr-y">Profiles natural persons (derogation lost)</label></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="cond" id="fs-trans">
+        <legend><div class="qh"><span class="qn">05</span><span class="qt">Transparency triggers</span></div></legend>
+        <p class="qs">These stack on top of any tier.</p>
+        <div class="opts stack">
+          <div class="opt"><input type="checkbox" name="trans" id="t-chat" value="chat"><label for="t-chat">Interacts directly with people (chatbot, voice agent)<span class="a">50(1)</span></label></div>
+          <div class="opt"><input type="checkbox" name="trans" id="t-gen" value="gen"><label for="t-gen">Generates synthetic text, image, audio or video<span class="a">50(2)</span></label></div>
+          <div class="opt"><input type="checkbox" name="trans" id="t-emo" value="emo"><label for="t-emo">Emotion recognition or biometric categorisation (lawful uses)<span class="a">50(3)</span></label></div>
+          <div class="opt"><input type="checkbox" name="trans" id="t-deep" value="deep"><label for="t-deep">Produces deepfakes or AI text published on matters of public interest<span class="a">50(4)</span></label></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="cond" id="fs-gpai">
+        <legend><div class="qh"><span class="qn">06</span><span class="qt">General-purpose AI models</span></div></legend>
+        <div class="opts stack">
+          <div class="opt"><input type="radio" name="gpai" id="g-none" value="none"><label for="g-none">Uses a third-party model via API, unchanged</label></div>
+          <div class="opt"><input type="radio" name="gpai" id="g-ft" value="finetune"><label for="g-ft">Fine-tunes or substantially modifies a GPAI model<span class="a">Art. 25 · GPAI guidelines</span></label></div>
+          <div class="opt"><input type="radio" name="gpai" id="g-gp" value="gpai"><label for="g-gp">Trains and releases its own GPAI model<span class="a">Art. 53</span></label></div>
+          <div class="opt"><input type="radio" name="gpai" id="g-sys" value="systemic"><label for="g-sys">GPAI model with systemic risk (&gt;10²⁵ FLOP)<span class="a">Arts. 51, 55</span></label></div>
+        </div>
+      </fieldset>
+    </form>
+
+    <aside class="verdict" aria-live="polite">
+      <div class="vbox" id="vbox">
+        <div class="vtop">
+          <div>
+            <div class="vname" id="vname"></div>
+            <div class="eyebrow">Provisional classification</div>
+            <div class="vtier" id="vtier"></div>
+          </div>
+          <div class="pyr" id="pyr"><div>Prohibited</div><div>High-risk</div><div>Transparency</div><div>Minimal</div></div>
+        </div>
+        <div class="vwhy" id="vwhy"></div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="flags" id="flags"></div>
+      <div class="vbox obl">
+        <h3>What the client must do <span id="collabel">with evidence</span></h3>
+        <ul class="ol" id="ol"></ul>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" id="copy">Copy triage memo</button>
+        <button class="btn ghost" type="button" id="reset">New assessment</button>
+        <span class="toast" id="toast" role="status"></span>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="wrap" id="timeline">
+  <div class="sechead"><div><h2>When it bites</h2><p>Application dates as amended by the AI Omnibus. Milestones that apply to the system on screen are highlighted.</p></div></div>
+  <div class="tlbox"><div class="tl" id="tl"></div></div>
+</section>
+
+<section class="wrap" id="fit">
+  <div class="sechead"><div><h2>Where this fits in EY's AI assurance work</h2></div></div>
+  <div class="fit"><div><h3>Evidence first</h3><p>Each obligation names the artefact that proves it. The triage output doubles as the request list for an AI Act readiness review.</p></div><div><h3>Built for the edge cases</h3><p>Art. 6(3) exemptions and fine-tuned GPAI models are where clients misclassify. The tool puts the reasoning on the page, where a reviewer can challenge it.</p></div><div><h3>Built by someone who has been inspected</h3><p>I ran nuclear safety compliance on a submarine, where every control had to be evidenced. AI assurance asks the same question of a different system.</p></div></div>
+  <div class="ask">
+    <div><h3>What I'm asking for</h3><p>A sandbox login, or 30 minutes with someone in the team. I'd like to run this against a real, anonymised AI inventory and show you what it produces. I'm looking for a full-time AI governance role after my IE MBA in December 2026.</p></div>
+    <div class="contact">sarfarazsingh@student.ie.edu<br>+34 663 462 250<br>Madrid</div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <p>Independent prototype built by Sarfaraz Singh Wahad to show how he would work inside EY's practice. Not affiliated with, commissioned or endorsed by EY. The sample client and its systems are invented.</p>
+  <p>Provisional triage only, not legal advice. Based on Regulation (EU) 2024/1689 and the AI Omnibus amendments (2026); classification needs confirmation against Commission guidelines and counsel review.</p>
+</div></footer>
+
+<script>
+const CFG = {"mode": "evidence", "client": "Sample client: European composite insurer", "clientDesc": "Six AI systems from a typical insurer. Two sit on the edges of the Act: a pricing model that is squarely high-risk, and an extraction tool that escapes it only if the reasoning is documented.", "portfolio": [{"s": {"role": "both", "annexIII": "ess", "profiling": "yes", "name": "Life & health pricing engine"}, "d": "Prices individual life and health policies from applicant data.", "ref": "III.5(c)"}, {"s": {"role": "provider", "annexIII": "ess", "derog": ["narrow"], "profiling": "no", "name": "Underwriting document extraction"}, "d": "Pulls fields from medical reports into the underwriting system. No scoring.", "ref": "Art. 6(3)(a)"}, {"s": {"role": "deployer", "prohib": ["f"], "name": "Agent emotion analytics"}, "d": "Detects call-centre agents' emotions to rate their performance.", "ref": "Art. 5(1)(f)"}, {"s": {"role": "provider", "trans": ["chat"], "name": "Claims intake assistant"}, "d": "Customer chatbot that opens claims and collects photos.", "ref": "Art. 50(1)"}, {"s": {"role": "both", "trans": ["chat"], "gpai": "finetune", "name": "Internal policy copilot"}, "d": "Open-weight LLM fine-tuned on underwriting manuals for staff.", "ref": "Art. 25 · 50(1)"}, {"s": {"role": "both", "name": "Claims fraud scoring"}, "d": "Flags suspicious motor claims for investigator review.", "ref": "Art. 95"}]};
+
+const TIERS = {
+  prohib:{label:"Prohibited", c:"--t-prohib", s:"--t-prohib-soft", lvl:0},
+  high:{label:"High-risk", c:"--t-high", s:"--t-high-soft", lvl:1},
+  exempt:{label:"Annex III · exempt", c:"--t-exempt", s:"--t-exempt-soft", lvl:1},
+  limited:{label:"Transparency", c:"--t-limited", s:"--t-limited-soft", lvl:2},
+  minimal:{label:"Minimal risk", c:"--t-minimal", s:"--t-minimal-soft", lvl:3},
+  out:{label:"Out of scope", c:"--t-out", s:"--t-out-soft", lvl:-1}
+};
+const PROHIB = {a:"manipulative techniques",b:"exploiting vulnerabilities",c:"social scoring",d:"predictive policing by profiling",e:"facial-image scraping",f:"emotion recognition at work or school",g:"sensitive biometric categorisation",h:"real-time remote biometric ID",i:"non-consensual intimate imagery"};
+const A3 = {bio:"Annex III.1 biometrics",infra:"Annex III.2 critical infrastructure",edu:"Annex III.3 education",emp:"Annex III.4 employment",ess:"Annex III.5 essential services",law:"Annex III.6–7 law enforcement & migration",jus:"Annex III.8 justice & democracy"};
+
+const D = {
+  inforce:"2024-08-01", prohib:"2025-02-02", gpai:"2025-08-02", trans:"2026-08-02",
+  omni:"2026-12-02", gpaiLegacy:"2027-08-02", high3:"2027-12-02", high1:"2028-08-02"
+};
+const MILES = [
+  {d:D.inforce,t:"Act enters into force",k:["all"]},
+  {d:D.prohib,t:"Prohibitions and AI literacy apply",k:["prohib","all"]},
+  {d:D.gpai,t:"GPAI model duties and penalties apply",k:["gpai"]},
+  {d:D.trans,t:"Transparency duties (Art. 50) apply",k:["trans"]},
+  {d:D.omni,t:"Intimate-imagery ban; Art. 50 grace ends",k:["prohib_i","trans"]},
+  {d:D.gpaiLegacy,t:"Pre-2025 GPAI models must comply",k:["gpai"]},
+  {d:D.high3,t:"Annex III high-risk obligations",k:["high3","exempt"]},
+  {d:D.high1,t:"Annex I product high-risk obligations",k:["high1"]}
+];
+
+const O = {
+  stop:{art:"Art. 5",t:"Withdraw or redesign the system; the practice is banned",who:"all",ws:"Governance & accountability",ev:"Decommission record and board-level sign-off",due:"prohib"},
+  lit:{art:"Art. 4",t:"AI literacy measures for staff operating the system",who:"all",ws:"People & training",ev:"Training records by role",due:"prohib"},
+  rm:{art:"Art. 9",t:"Risk management system across the lifecycle",who:"provider",ws:"Risk & controls",ev:"Risk register with residual-risk sign-off",due:"high"},
+  data:{art:"Art. 10",t:"Data governance: relevance, representativeness, bias examination",who:"provider",ws:"Data & model controls",ev:"Dataset datasheets and bias test results",due:"high"},
+  doc:{art:"Art. 11",t:"Technical documentation per Annex IV",who:"provider",ws:"Conformity & documentation",ev:"Annex IV technical file",due:"high"},
+  log:{art:"Art. 12",t:"Automatic event logging",who:"provider",ws:"Data & model controls",ev:"Log schema and retention configuration",due:"high"},
+  ifu:{art:"Art. 13",t:"Instructions for use for deployers",who:"provider",ws:"Conformity & documentation",ev:"Published instructions for use",due:"high"},
+  hov:{art:"Art. 14",t:"Human oversight designed into the system",who:"provider",ws:"Risk & controls",ev:"Override and stop-control test evidence",due:"high"},
+  acc:{art:"Art. 15",t:"Accuracy, robustness and cybersecurity",who:"provider",ws:"Data & model controls",ev:"Performance metrics, adversarial and pen-test reports",due:"high"},
+  qms:{art:"Art. 17",t:"Quality management system",who:"provider",ws:"Governance & accountability",ev:"QMS manual mapped to ISO/IEC 42001 controls",due:"high"},
+  ca:{art:"Arts. 43, 47–48",t:"Conformity assessment, EU declaration and CE marking",who:"provider",ws:"Conformity & documentation",ev:"Signed EU declaration of conformity",due:"high"},
+  reg:{art:"Art. 49",t:"Register in the EU high-risk database",who:"provider",ws:"Conformity & documentation",ev:"EU database registration ID",due:"high"},
+  pmm:{art:"Arts. 72–73",t:"Post-market monitoring and serious-incident reporting",who:"provider",ws:"Monitoring & incident response",ev:"Monitoring plan and incident playbook",due:"high"},
+  use:{art:"Art. 26",t:"Use per instructions with competent, assigned human oversight",who:"deployer",ws:"Risk & controls",ev:"Named oversight owners and operating procedure",due:"high"},
+  dlog:{art:"Art. 26(6)",t:"Keep system logs for at least six months",who:"deployer",ws:"Monitoring & incident response",ev:"Retention policy and sample log extract",due:"high"},
+  work:{art:"Art. 26(7)",t:"Inform workers' representatives before workplace use",who:"deployer",ws:"People & training",ev:"Works-council notification",due:"high",only:"emp"},
+  aff:{art:"Art. 26(11)",t:"Tell affected people a high-risk AI system is used on them",who:"deployer",ws:"Transparency & UX",ev:"Customer-facing notice copy",due:"high"},
+  fria:{art:"Art. 27",t:"Fundamental rights impact assessment before first use",who:"deployer",ws:"Risk & controls",ev:"Completed FRIA notified to the authority",due:"high",only:"ess"},
+  expl:{art:"Art. 86",t:"Explain individual decisions on request",who:"deployer",ws:"Transparency & UX",ev:"Explanation template and response SLA",due:"high"},
+  imp:{art:"Arts. 23–24",t:"Verify CE marking, documentation and provider conformity before supply",who:"importer",ws:"Conformity & documentation",ev:"Supplier due-diligence checklist",due:"high"},
+  d64:{art:"Art. 6(4)",t:"Document why the Annex III system is not high-risk",who:"provider",ws:"Inventory & classification",ev:"Signed derogation assessment",due:"exempt"},
+  d49:{art:"Art. 49(2)",t:"Register the system in the EU database despite the exemption",who:"provider",ws:"Conformity & documentation",ev:"EU database registration ID",due:"exempt"},
+  t1:{art:"Art. 50(1)",t:"Tell users they are interacting with AI",who:"provider",ws:"Transparency & UX",ev:"UI disclosure screenshots",due:"trans"},
+  t2:{art:"Art. 50(2)",t:"Machine-readable marking of generated content",who:"provider",ws:"Data & model controls",ev:"Watermark/C2PA implementation test",due:"trans"},
+  t3:{art:"Art. 50(3)",t:"Inform people exposed to emotion recognition or categorisation",who:"deployer",ws:"Transparency & UX",ev:"Notice and GDPR lawful-basis record",due:"trans"},
+  t4:{art:"Art. 50(4)",t:"Disclose deepfakes and AI-generated public-interest text",who:"deployer",ws:"Transparency & UX",ev:"Labelling standard and published samples",due:"trans"},
+  g53:{art:"Art. 53",t:"Model documentation, copyright policy, public training-data summary",who:"provider",ws:"Conformity & documentation",ev:"Model card, copyright policy, data summary template",due:"gpai"},
+  g55:{art:"Art. 55",t:"Model evaluations, adversarial testing, incident reporting, cybersecurity",who:"provider",ws:"Risk & controls",ev:"Red-team reports and AI Office correspondence",due:"gpai"},
+  gft:{art:"Art. 25",t:"Test whether the modification makes the client a provider (compute threshold)",who:"all",ws:"Inventory & classification",ev:"Modification compute log vs. original model",due:"gpai"},
+  conf:{art:"Art. 3(1)",t:"Confirm the AI-system definition against Commission guidelines",who:"all",ws:"Inventory & classification",ev:"Definition memo",due:"now"}
+};
+const FINE = {prohib:"€35M / 7%",high:"€15M / 3%",exempt:"€15M / 3%",limited:"€15M / 3%",minimal:"—",out:"—"};
+
+const $ = s=>document.querySelector(s);
+const f = $("#f");
+function read(){
+  const g=n=>(f.querySelector(`input[name="${n}"]:checked`)||{}).value;
+  const all=n=>[...f.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);
+  return {name:$("#sysname").value.trim(), role:g("role")||"provider", isAI:g("isAI")||"yes", excluded:all("excluded"),
+    prohib:all("prohib"), annexI:g("annexI")||"no", annexIII:g("annexIII")||"none", derog:all("derog"),
+    profiling:g("profiling")||"no", trans:all("trans"), gpai:g("gpai")||"none"};
+}
+function write(s){
+  f.reset(); $("#sysname").value=s.name||"";
+  const set=(n,v)=>{const el=f.querySelector(`input[name="${n}"][value="${v}"]`); if(el) el.checked=true;};
+  ["role","isAI","annexI","annexIII","profiling","gpai"].forEach(k=>set(k,s[k]||({role:"provider",isAI:"yes",annexI:"no",annexIII:"none",profiling:"no",gpai:"none"})[k]));
+  ["excluded","prohib","derog","trans"].forEach(k=>(s[k]||[]).forEach(v=>set(k,v)));
+}
+
+function classify(s){
+  const r={tier:"minimal",why:[],obls:[],keys:new Set(["all"]),flags:[]};
+  const prov = s.role==="provider"||s.role==="both", dep = s.role==="deployer"||s.role==="both", imp=s.role==="importer";
+  const add=k=>{const o=O[k]; if(!o) return; if(o.who==="provider"&&!prov) return; if(o.who==="deployer"&&!dep) return; if(o.only&&o.only!==s.annexIII) return; r.obls.push(o);};
+  if(s.isAI==="no"){r.tier="out";r.why.push("Deterministic software falls outside the Art. 3(1) definition.");return r;}
+  if(s.excluded.length){r.tier="out";r.why.push(s.excluded.includes("military")?"Exclusive military, defence or national-security use is excluded (Art. 2(3)).":"Pure research use before market placement is excluded (Art. 2(6)).");return r;}
+  if(s.isAI==="unsure"){add("conf");r.flags.push(["Definition","borderline; triaged as in scope"]);}
+  if(s.prohib.length){
+    r.tier="prohib"; r.why.push("Matches a banned practice: "+s.prohib.map(p=>PROHIB[p]).join(", ")+".");
+    r.keys.add(s.prohib.some(p=>p!=="i")?"prohib":"prohib_i"); if(s.prohib.includes("i")) r.keys.add("prohib_i");
+    r.obls.push(O.stop); r.obls.push(O.lit); return r;
+  }
+  add("lit");
+  let high=false;
+  if(s.annexI==="yes"){high=true;r.keys.add("high1");r.why.push("Safety component of an Annex I regulated product (Art. 6(1)).");}
+  if(s.annexIII!=="none"){
+    const der = s.derog.length>0, prof = s.profiling==="yes";
+    if(der&&!prof&&!high){r.tier="exempt";r.keys.add("exempt");r.why.push(A3[s.annexIII]+" use case, but the Art. 6(3) derogation applies: "+s.derog.length+" condition"+(s.derog.length>1?"s":"")+" met and no profiling.");add("d64");add("d49");}
+    else{high=true;r.keys.add("high3");r.why.push(A3[s.annexIII]+(prof&&der?". Profiling of natural persons removes the derogation (Art. 6(3), last subparagraph).":" use case (Art. 6(2))."));}
+  }
+  if(high){
+    r.tier="high";
+    if(prov) ["rm","data","doc","log","ifu","hov","acc","qms","ca","reg","pmm"].forEach(add);
+    if(dep) ["use","dlog","work","aff","fria","expl"].forEach(add);
+    if(imp) r.obls.push(O.imp);
+  }
+  if(s.trans.length){
+    if(r.tier==="minimal") r.tier="limited";
+    r.keys.add("trans");
+    const m={chat:"t1",gen:"t2",emo:"t3",deep:"t4"};
+    s.trans.forEach(t=>add(m[t]));
+    if(r.tier==="limited") r.why.push("No high-risk use, but transparency duties under Art. 50 apply.");
+    else r.why.push("Art. 50 transparency duties stack on top.");
+  }
+  if(s.gpai!=="none"){
+    r.keys.add("gpai");
+    if(s.gpai==="finetune"){r.obls.push(O.gft);r.flags.push(["GPAI","modifier; provider status to confirm"]);}
+    if(s.gpai==="gpai"||s.gpai==="systemic"){r.obls.push(O.g53);r.flags.push(["GPAI",s.gpai==="systemic"?"systemic-risk model provider":"model provider"]);}
+    if(s.gpai==="systemic") r.obls.push(O.g55);
+  }
+  if(r.tier==="minimal"&&!r.why.length) r.why.push("No prohibited, high-risk or transparency trigger. Voluntary codes of conduct apply (Art. 95).");
+  if(s.annexIII==="ess"&&dep&&r.tier==="high") r.flags.push(["FRIA","required for credit scoring and life/health pricing"]);
+  if(s.annexIII==="emp"&&r.tier==="high") r.flags.push(["Workforce","GDPR Art. 22 and works-council exposure"]);
+  return r;
+}
+
+function dueDate(due,r,s){
+  if(due==="prohib") return D.prohib;
+  if(due==="trans") return D.trans;
+  if(due==="gpai") return s.gpai==="finetune"?D.gpai:D.gpai;
+  if(due==="exempt") return D.high3;
+  if(due==="high") return r.keys.has("high1")&&!r.keys.has("high3")?D.high1:D.high3;
+  return null;
+}
+const today=new Date(); today.setHours(0,0,0,0);
+const fmt=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+const days=d=>Math.round((new Date(d+"T00:00:00")-today)/864e5);
+
+function render(){
+  const s=read(); const r=classify(s); const T=TIERS[r.tier];
+  const root=document.documentElement.style;
+  const vb=$("#vbox"); vb.style.setProperty("--tc",`var(${T.c})`);
+  ["#fs-prohib","#fs-high","#fs-trans","#fs-gpai"].forEach(id=>$(id).hidden = r.tier==="out");
+  $("#derog").hidden = s.annexIII==="none";
+  $("#vname").textContent = s.name||"Untitled system";
+  $("#vtier").textContent = T.label;
+  $("#vwhy").innerHTML = "<ul>"+r.why.map(w=>`<li>${w}</li>`).join("")+"</ul>";
+  [...$("#pyr").children].forEach((d,i)=>{d.classList.toggle("on",i===T.lvl); d.style.setProperty("--tc",`var(${T.c})`);});
+  // stats
+  const dates=r.obls.map(o=>dueDate(o.due,r,s)).filter(Boolean);
+  const future=dates.filter(d=>days(d)>0).sort();
+  const live=dates.filter(d=>days(d)<=0).length;
+  const next=future[0];
+  $("#stats").innerHTML = `
+    <div class="stat"><b>${r.obls.length}</b><span>obligations for this role</span></div>
+    <div class="stat"><b>${next?days(next):(r.tier==="out"?"—":"Live")}</b><span>${next?"days to "+fmt(next):(r.tier==="out"?"no deadline":"already enforceable")}</span></div>
+    <div class="stat"><b style="font-size:${FINE[r.tier].length>3?20:26}px">${FINE[r.tier]}</b><span>max fine, of global turnover</span></div>`;
+  $("#flags").innerHTML = r.flags.map(([a,b])=>`<span class="flag"><b>${a}</b> ${b}</span>`).join("") + (live&&next?`<span class="flag"><b>${live}</b> already in force</span>`:"");
+  const key = CFG.mode==="evidence"?"ev":"ws"; const lab = CFG.mode==="evidence"?"Evidence to test":"Workstream";
+  $("#ol").innerHTML = r.obls.length ? r.obls.map(o=>{const dd=dueDate(o.due,r,s);return `<li><span class="art">${o.art}</span><div><div class="t">${o.t}${o.who!=="all"?`<span class="who">${o.who}</span>`:""}</div><div class="w"><b>${lab}:</b> ${o[key]}${dd?` · ${days(dd)<=0?"in force":"from "+fmt(dd)}`:""}</div></div></li>`}).join("") : `<li class="empty" style="display:block">Nothing under the AI Act. Check GDPR and sector rules separately.</li>`;
+  renderTimeline(r,T);
+  window.__last={s,r};
+}
+
+function renderTimeline(r,T){
+  const a=new Date("2024-06-01").getTime(), b=new Date("2028-11-01").getTime(), pos=d=>((new Date(d).getTime()-a)/(b-a)*100);
+  let h=`<div class="axis"></div>`;
+  [2025,2026,2027,2028].forEach(y=>h+=`<span class="yr" style="left:${pos(y+"-01-01")}%">${y}</span>`);
+  MILES.forEach((m,i)=>{
+    const hit=m.k.some(k=>r.keys.has(k))&&!(m.k[0]==="all"&&m.k.length===1)||(r.tier!=="out"&&m.d===D.prohib);
+    const past=days(m.d)<=0;
+    h+=`<span class="dot ${hit?"hit":""}" style="left:${pos(m.d)}%;--tc:var(${T.c})"></span>`;
+    h+=`<div class="ms ${i%2?"dn":"up"} ${hit?"hit":""} ${past?"past":""}" style="left:${pos(m.d)}%"><span class="d">${fmt(m.d)}</span>${m.t}</div>`;
+  });
+  const t=today.toISOString().slice(0,10);
+  h+=`<div class="today" style="left:${pos(t)}%"><span>Today</span></div>`;
+  $("#tl").innerHTML=h;
+}
+
+// portfolio
+function portfolio(){
+  $("#ptitle").textContent=CFG.client; $("#pdesc").textContent=CFG.clientDesc;
+  const res=CFG.portfolio.map(p=>({p,r:classify(Object.assign({role:"provider",isAI:"yes",excluded:[],prohib:[],annexI:"no",annexIII:"none",derog:[],profiling:"no",trans:[],gpai:"none"},p.s))}));
+  const order=["prohib","high","exempt","limited","minimal"];
+  const cnt={}; res.forEach(x=>cnt[x.r.tier]=(cnt[x.r.tier]||0)+1);
+  $("#dist").innerHTML=order.filter(t=>cnt[t]).map(t=>`<span style="width:${cnt[t]/res.length*100}%;background:var(${TIERS[t].c})" title="${TIERS[t].label}"></span>`).join("");
+  $("#legend").innerHTML=order.filter(t=>cnt[t]).map(t=>`<span><i style="background:var(${TIERS[t].c})"></i>${cnt[t]} ${TIERS[t].label.toLowerCase()}</span>`).join("");
+  $("#cards").innerHTML=res.map((x,i)=>{const T=TIERS[x.r.tier];return `<button type="button" class="card" data-i="${i}" aria-pressed="false" style="--tc:var(${T.c});--ts:var(${T.s})"><span class="nm">${x.p.s.name}</span><span class="ds">${x.p.d}</span><span class="ft"><span class="chip">${T.label}</span><span class="ref">${x.p.ref}</span></span></button>`}).join("")+`<button type="button" class="newbtn" id="newsys">+ Assess another system</button>`;
+  document.querySelectorAll(".card").forEach(c=>c.addEventListener("click",()=>{
+    document.querySelectorAll(".card").forEach(x=>x.setAttribute("aria-pressed","false")); c.setAttribute("aria-pressed","true");
+    write(CFG.portfolio[+c.dataset.i].s); render();
+    if(innerWidth<900) document.querySelector(".main").scrollIntoView({behavior:"smooth"});
+  }));
+  $("#newsys").addEventListener("click",newOne);
+}
+function newOne(){document.querySelectorAll(".card").forEach(x=>x.setAttribute("aria-pressed","false")); write({}); render(); $("#sysname").focus();}
+
+f.addEventListener("input",render); f.addEventListener("change",render);
+$("#reset").addEventListener("click",newOne);
+$("#copy").addEventListener("click",()=>{
+  const {s,r}=window.__last; const T=TIERS[r.tier]; const lab=CFG.mode==="evidence"?"Evidence":"Workstream"; const key=CFG.mode==="evidence"?"ev":"ws";
+  const txt=[`EU AI ACT TRIAGE — ${s.name||"Untitled system"}`,`Client role: ${s.role}`,`Provisional classification: ${T.label}`,"",...r.why.map(w=>"• "+w),"","Obligations:",...r.obls.map(o=>{const dd=dueDate(o.due,r,s);return `- ${o.art}: ${o.t} [${lab}: ${o[key]}]${dd?" — "+(days(dd)<=0?"in force":"from "+fmt(dd)):""}`}),"",`Prepared with a prototype by Sarfaraz Singh Wahad (AIGP). Provisional, not legal advice.`].join("\n");
+  const done=m=>{$("#toast").textContent=m;setTimeout(()=>$("#toast").textContent="",2400);};
+  try{navigator.clipboard.writeText(txt).then(()=>done("Memo copied"),()=>fallback());}catch(e){fallback();}
+  function fallback(){const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done("Memo copied");}catch(e){done("Copy blocked by this viewer");}ta.remove();}
+});
+
+portfolio();
+const first=document.querySelector(".card"); first.setAttribute("aria-pressed","true"); write(CFG.portfolio[0].s); render();
+</script>
+
+</body>
+</html>
